@@ -9,3 +9,4 @@ typedef struct zapatilla
     Marca marca;
     char* nombre;
 };
+#endif
