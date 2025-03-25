@@ -6,3 +6,4 @@ typedef struct Marca
     int id;
     char* nombre;
 };
+#endif
