@@ -236,10 +236,10 @@ void iniciarSesion(){
     void administrarProveedores() {
         printf("\n--- Administracion de Proveedores ---\n");
         printf("1. Ver proveedores\n");
-        printf("2. Añadir proveedor\n");
+        printf("2. Anadir proveedor\n");
         printf("3. Modificar proveedor\n");
         printf("4. Eliminar proveedor\n");
-        printf("Seleccione una opción: ");
+        printf("Seleccione una opcion: ");
     
         char opcion;
         scanf(" %c", &opcion);
@@ -254,7 +254,7 @@ void iniciarSesion(){
                 if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
                     printf("\n--- Lista de Proveedores ---\n");
                     while (sqlite3_step(stmt) == SQLITE_ROW) {
-                        printf("ID: %d | Nombre: %s | Contacto: %s | Dirección: %s\n",
+                        printf("ID: %d | Nombre: %s | Contacto: %s | Direccion: %s\n",
                             sqlite3_column_int(stmt, 0),
                             sqlite3_column_text(stmt, 1),
                             sqlite3_column_text(stmt, 2),
@@ -267,17 +267,17 @@ void iniciarSesion(){
                 break;
             }
             case '2': {
-                // Añadir proveedor
+                // Anadir proveedor
                 char nombre[50], contacto[50], direccion[100];
                 printf("Nombre: "); scanf(" %[^\n]", nombre);
                 printf("Contacto: "); scanf(" %[^\n]", contacto);
-                printf("Dirección: "); scanf(" %[^\n]", direccion);
+                printf("Direccion: "); scanf(" %[^\n]", direccion);
                 sprintf(sql, "INSERT INTO Proveedores (nombre, contacto, direccion) VALUES ('%s', '%s', '%s');",
                         nombre, contacto, direccion);
                 if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-                    printf("Proveedor añadido con éxito.\n");
+                    printf("Proveedor anadido con exito.\n");
                 } else {
-                    printf("Error al añadir proveedor.\n");
+                    printf("Error al anadir proveedor.\n");
                 }
                 break;
             }
@@ -287,11 +287,11 @@ void iniciarSesion(){
                 char nuevoContacto[50], nuevaDireccion[100];
                 printf("ID del proveedor a modificar: "); scanf("%d", &id);
                 printf("Nuevo contacto: "); scanf(" %[^\n]", nuevoContacto);
-                printf("Nueva dirección: "); scanf(" %[^\n]", nuevaDireccion);
+                printf("Nueva direccion: "); scanf(" %[^\n]", nuevaDireccion);
                 sprintf(sql, "UPDATE Proveedores SET contacto = '%s', direccion = '%s' WHERE id = %d;",
                         nuevoContacto, nuevaDireccion, id);
                 if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-                    printf("Proveedor modificado con éxito.\n");
+                    printf("Proveedor modificado con exito.\n");
                 } else {
                     printf("Error al modificar proveedor.\n");
                 }
@@ -311,7 +311,7 @@ void iniciarSesion(){
                 break;
             }
             default:
-                printf("Opción inválida.\n");
+                printf("Opcion invalida.\n");
         }
     }
     
@@ -319,9 +319,9 @@ void iniciarSesion(){
     void configurarSistema() {
         printf("\n--- Configuracion del Sistema ---\n");
         printf("1. Ver usuarios\n");
-        printf("2. Cambiar contraseña de usuario\n");
+        printf("2. Cambiar contrasena de usuario\n");
         printf("3. Cambiar rol de usuario\n");
-        printf("Seleccione una opción: ");
+        printf("Seleccione una opcion: ");
     
         char opcion;
         scanf(" %c", &opcion);
@@ -349,19 +349,19 @@ void iniciarSesion(){
             }
     
             case '2': {
-                // Cambiar contraseña
+                // Cambiar contrasena
                 int id;
                 char nuevaContrasena[100];
                 printf("ID del usuario: ");
                 scanf("%d", &id);
-                printf("Nueva contraseña: ");
+                printf("Nueva contrasena: ");
                 scanf(" %[^\n]", nuevaContrasena);
     
-                sprintf(sql, "UPDATE Usuarios SET contraseña = '%s' WHERE id = %d;", nuevaContrasena, id);
+                sprintf(sql, "UPDATE Usuarios SET contrasena = '%s' WHERE id = %d;", nuevaContrasena, id);
                 if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-                    printf("Contraseña actualizada.\n");
+                    printf("Contrasena actualizada.\n");
                 } else {
-                    printf("Error al cambiar la contraseña.\n");
+                    printf("Error al cambiar la contrasena.\n");
                 }
                 break;
             }
@@ -385,7 +385,7 @@ void iniciarSesion(){
             }
     
             default:
-                printf("Opción inválida.\n");
+                printf("Opcion invalida.\n");
         }
     }
     
@@ -401,13 +401,13 @@ void iniciarSesion(){
                 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
                 tm.tm_hour, tm.tm_min, tm.tm_sec);
     
-        // Guardar la hora de última conexión
+        // Guardar la hora de ultima conexion
         sprintf(sql, "UPDATE Usuarios SET ultima_conexion = '%s' WHERE id = %d;", fecha, usuario_id);
         if (sqlite3_exec(db, sql, 0, 0, 0) != SQLITE_OK) {
-            printf("⚠️  No se pudo actualizar la última conexión.\n");
+            printf("⚠️  No se pudo actualizar la ultima conexion.\n");
         }
     
-        printf("\n✅ Sesión cerrada correctamente. Hasta pronto.\n");
+        printf("\n✅ Sesion cerrada correctamente. Hasta pronto.\n");
     }
     
     
