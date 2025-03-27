@@ -1,12 +1,15 @@
 #ifndef ZAPATILLA_H
 #define ZAPATILLA_H
+
 #include "marca.h"
 
-typedef struct zapatilla
-{
+typedef struct Zapatilla {
     int id;
-    int precio;
+    float precio;
     Marca marca;
-    char* nombre;
-};
+    char nombre[50];
+} Zapatilla;
+
+void imprimirZapatilla(Zapatilla z);
+
 #endif

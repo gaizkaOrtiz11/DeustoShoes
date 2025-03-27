@@ -33,9 +33,9 @@ int main(void){
         printf("2. Registrar Movimientos\n");
         printf("3. Generar Reportes\n");
         printf("4. Administrar Proveedores\n");
-        printf("5. Configuración del Sistema\n");
-        printf("6. Cerrar Sesión\n");
-        printf("Selecciona una opción: ");
+        printf("5. Configuracion del Sistema\n");
+        printf("6. Cerrar Sesion\n");
+        printf("Selecciona una opcion: ");
         scanf(" %c", &opcion);
 
         switch(opcion){
@@ -45,7 +45,7 @@ int main(void){
             case '4': administrarProveedores(); break;
             case '5': configurarSistema(); break;
             case '6': cerrarSesion(); sesionIniciada = 0; break;
-            default: printf("\nOpción no válida.\n");
+            default: printf("\nOpcion no valida.\n");
         }
     }
 
@@ -59,13 +59,13 @@ void iniciarSesion(){
     char sql[256];
     sqlite3_stmt *stmt;
 
-    printf("\n--- Inicio de Sesión ---\n");
+    printf("\n--- Inicio de Sesion ---\n");
     printf("Usuario: ");
     scanf("%s", usuario);
-    printf("Contraseña: ");
+    printf("Contrasena: ");
     scanf("%s", contrasena);
 
-    sprintf(sql, "SELECT rol FROM Usuarios WHERE nombre = '%s' AND contraseña = '%s';", usuario, contrasena);
+    sprintf(sql, "SELECT rol FROM Usuarios WHERE nombre = '%s' AND contrasena = '%s';", usuario, contrasena);
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -73,7 +73,7 @@ void iniciarSesion(){
             strcpy(rolUsuario, (const char *)rol);
             printf("Bienvenido, %s! Rol: %s\n", usuario, rolUsuario);
         } else {
-            printf("Usuario o contraseña incorrectos.\n");
+            printf("Usuario o contrasena incorrectos.\n");
             iniciarSesion(); // reintento
         }
         sqlite3_finalize(stmt);
@@ -81,12 +81,12 @@ void iniciarSesion(){
         printf("Error al verificar usuario.\n");
     }}
     void gestionarInventario(){
-        printf("\n--- Gestión de Inventario ---\n");
+        printf("\n--- Gestion de Inventario ---\n");
         printf("1. Ver productos\n");
-        printf("2. Añadir producto\n");
+        printf("2. Anadir producto\n");
         printf("3. Modificar producto\n");
         printf("4. Eliminar producto\n");
-        printf("Seleccione una opción:\n ");
+        printf("Seleccione una opcion:\n ");
     
         char opcion;
         scanf(" %c", &opcion);
@@ -125,9 +125,9 @@ void iniciarSesion(){
                 sprintf(sql, "INSERT INTO Zapatilla (nombre, marca, modelo, cantidad, precio) VALUES ('%s', '%s', '%s', %d, %.2f);",
                         nombre, marca, modelo, cantidad, precio);
                 if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-                    printf("Producto añadido con éxito.\n");
+                    printf("Producto anadido con exito.\n");
                 } else {
-                    printf("Error al añadir producto.\n");
+                    printf("Error al anadir producto.\n");
                 }
                 break;
             }
@@ -139,7 +139,7 @@ void iniciarSesion(){
                 scanf("%d", &nuevaCantidad);
                 sprintf(sql, "UPDATE Zapatilla SET cantidad = %d WHERE id = %d;", nuevaCantidad, id);
                 if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-                    printf("Producto modificado con éxito.\n");
+                    printf("Producto modificado con exito.\n");
                 } else {
                     printf("Error al modificar producto.\n");
                 }
@@ -158,7 +158,7 @@ void iniciarSesion(){
                 break;
             }
             default:
-                printf("Opción inválida.\n");
+                printf("Opcion invalida.\n");
         }
     }
     
@@ -179,14 +179,14 @@ void iniciarSesion(){
                 tipo, producto_id, cantidad);
     
         if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-            printf("Movimiento registrado con éxito.\n");
+            printf("Movimiento registrado con exito.\n");
         } else {
             printf("Error al registrar movimiento.\n");
         }
     }
     
     void generarReportes(){
-        printf("\n--- Generación de Reportes ---\n");
+        printf("\n--- Generacion de Reportes ---\n");
 
         char sql[256];
         sqlite3_stmt *stmt;
@@ -197,7 +197,7 @@ void iniciarSesion(){
             return;
         }
 
-        fprintf(archivo, "Reporte de Inventario - Generado automáticamente\n\n");
+        fprintf(archivo, "Reporte de Inventario - Generado automaticamente\n\n");
         sprintf(sql, "SELECT id, nombre, marca, modelo, cantidad, precio FROM Zapatilla;");
 
         int totalProductos = 0;
@@ -233,16 +233,16 @@ void iniciarSesion(){
     }
     
     void administrarProveedores(){
-        printf("\n--- Administración de Proveedores ---\n");
-        // Lógica de gestión de proveedores
+        printf("\n--- Administracion de Proveedores ---\n");
+        // Logica de gestion de proveedores
     }
     
     void configurarSistema(){
-        printf("\n--- Configuración del Sistema ---\n");
+        printf("\n--- Configuracion del Sistema ---\n");
         // Ajustes como permisos o notificaciones
     }
     
     void cerrarSesion(){
-        printf("\nSesión cerrada correctamente.\n");
+        printf("\nSesion cerrada correctamente.\n");
     }
-}
+    
