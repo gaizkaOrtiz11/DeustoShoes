@@ -14,6 +14,7 @@ void cerrarSesion();
 
 sqlite3 *db;
 char rolUsuario[20];
+int idUsuarioGlobal = -1; // -1 significa "sin sesión"
 
 int main(void){
     // BASE DE DATOS
@@ -45,7 +46,7 @@ int main(void){
             case '3': generarReportes(); break;
             case '4': administrarProveedores(); break;
             case '5': configurarSistema(); break;
-           // case '6': cerrarSesion(id_usuario (pero todavia no lo tenemos)); sesionIniciada = 0; break;
+            case '6': cerrarSesion(idUsuarioGlobal); sesionIniciada = 0; break;
             default: printf("\nOpcion no valida.\n");
         }
     }
@@ -66,13 +67,14 @@ void iniciarSesion(){
     printf("Contrasena: ");
     scanf("%s", contrasena);
 
-    sprintf(sql, "SELECT rol FROM Usuarios WHERE nombre = '%s' AND contrasena = '%s';", usuario, contrasena);
+    sprintf(sql, "SELECT id, rol FROM Usuarios WHERE nombre = '%s' AND contrasena = '%s';", usuario, contrasena);
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
+            idUsuarioGlobal = sqlite3_column_int(stmt, 0); // 💡 Guardamos el ID global
             const unsigned char *rol = sqlite3_column_text(stmt, 0);
             strcpy(rolUsuario, (const char *)rol);
-            printf("Bienvenido, %s! Rol: %s\n", usuario, rolUsuario);
+            printf("Bienvenido, %s! Rol: %s | ID: %d\n", usuario, rolUsuario, idUsuarioGlobal);
         } else {
             printf("Usuario o contrasena incorrectos.\n");
             iniciarSesion(); // reintento
@@ -390,7 +392,7 @@ void iniciarSesion(){
     }
     
     
-    void cerrarSesion(int usuario_id) {
+    void cerrarSesion(int idUsuario) {
         char sql[256];
         char fecha[50];
     
@@ -402,7 +404,7 @@ void iniciarSesion(){
                 tm.tm_hour, tm.tm_min, tm.tm_sec);
     
         // Guardar la hora de ultima conexion
-        sprintf(sql, "UPDATE Usuarios SET ultima_conexion = '%s' WHERE id = %d;", fecha, usuario_id);
+        sprintf(sql, "UPDATE Usuarios SET ultima_conexion = '%s' WHERE id = %d;", fecha, idUsuario);
         if (sqlite3_exec(db, sql, 0, 0, 0) != SQLITE_OK) {
             printf("⚠️  No se pudo actualizar la ultima conexion.\n");
         }
