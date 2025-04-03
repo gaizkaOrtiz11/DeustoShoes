@@ -4,6 +4,7 @@
 #include "sqlite3.h"
 #include <time.h>
 // Declaraciones de funciones
+
 void iniciarSesion();
 void gestionarInventario();
 void registrarMovimientos();
@@ -19,17 +20,17 @@ int idUsuarioGlobal = -1; // -1 significa "sin sesión"
 int main(void){
     // BASE DE DATOS
     sqlite3_stmt *stmt;
-    sqlite3_open("Proyecto.db", &db);
+    sqlite3_open("baseDeDatos.db3", &db);
 
     char opcion;
     int sesionIniciada = 0;
 
     while (1) {
+        // Iniciar sesión solo si no ha iniciado correctamente
         if (!sesionIniciada) {
             iniciarSesion();
-            sesionIniciada = 1;
-        }
-
+            if (idUsuarioGlobal != -1) { // 💡 comprobación importante
+                sesionIniciada = 1;
         printf("\n----- MENU PRINCIPAL (%s) -----\n", rolUsuario);
         printf("1. Gestionar Inventario\n");
         printf("2. Registrar Movimientos\n");
@@ -49,10 +50,16 @@ int main(void){
             case '6': cerrarSesion(idUsuarioGlobal); sesionIniciada = 0; break;
             default: printf("\nOpcion no valida.\n");
         }
-    }
+    
 
     sqlite3_close(db);
     return 0;
+            } else {
+                continue; // vuelve a pedir login
+            }
+        }
+    }
+
 }
 
 void iniciarSesion(){
@@ -71,18 +78,20 @@ void iniciarSesion(){
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
-            idUsuarioGlobal = sqlite3_column_int(stmt, 0); // 💡 Guardamos el ID global
-            const unsigned char *rol = sqlite3_column_text(stmt, 0);
+            idUsuarioGlobal = sqlite3_column_int(stmt, 0); //ID del usuario guardado
+            const unsigned char *rol = sqlite3_column_text(stmt, 1);
             strcpy(rolUsuario, (const char *)rol);
             printf("Bienvenido, %s! Rol: %s | ID: %d\n", usuario, rolUsuario, idUsuarioGlobal);
         } else {
             printf("Usuario o contrasena incorrectos.\n");
-            iniciarSesion(); // reintento
+            idUsuarioGlobal = -1; //Asegura que el id queda inválido
         }
         sqlite3_finalize(stmt);
     } else {
         printf("Error al verificar usuario.\n");
-    }}
+        idUsuarioGlobal = -1;
+    }
+}
     void gestionarInventario(){
         printf("\n--- Gestion de Inventario ---\n");
         printf("1. Ver productos\n");
