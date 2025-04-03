@@ -124,10 +124,10 @@ int iniciarSesion(){
                 int cantidad;
                 float precio;
                 printf("Nombre: "); scanf("%s", nombre);
-                printf("Marca: "); scanf("%s", marca);
-                printf("Modelo: "); scanf("%s", modelo);
-                printf("Cantidad: "); scanf("%d", &cantidad);
-                printf("Precio: "); scanf("%f", &precio);
+                printf("\nMarca: "); scanf("%s", marca);
+                printf("\nModelo: "); scanf("%s", modelo);
+                printf("\nCantidad: "); scanf("%d", &cantidad);
+                printf("\nPrecio: "); scanf("%f", &precio);
                 sprintf(sql, "INSERT INTO Zapatilla (nombre, marca, modelo, cantidad, precio) VALUES ('%s', '%s', '%s', %d, %.2f);",
                         nombre, marca, modelo, cantidad, precio);
                 if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
