@@ -5,32 +5,30 @@
 #include <time.h>
 // Declaraciones de funciones
 
-void iniciarSesion();
+int iniciarSesion();
 void gestionarInventario();
-void registrarMovimientos();
+void registrarMovimientos(int idUsuario);
 void generarReportes();
 void administrarProveedores();
 void configurarSistema();
-void cerrarSesion();
+void cerrarSesion(int idUsuario);
 
 sqlite3 *db;
 char rolUsuario[20];
-int idUsuarioGlobal = -1; // -1 significa "sin sesión"
 
 int main(void){
-    // BASE DE DATOS
     sqlite3_stmt *stmt;
     sqlite3_open("baseDeDatos.db3", &db);
 
     char opcion;
-    int sesionIniciada = 0;
+    int idUsuario = -1;
 
     while (1) {
-        // Iniciar sesión solo si no ha iniciado correctamente
-        if (!sesionIniciada) {
-            iniciarSesion();
-            if (idUsuarioGlobal != -1) { // 💡 comprobación importante
-                sesionIniciada = 1;
+        if (idUsuario == -1) {
+            idUsuario = iniciarSesion();
+            if (idUsuario == -1) continue; // Si login falla, repite
+        }
+
         printf("\n----- MENU PRINCIPAL (%s) -----\n", rolUsuario);
         printf("1. Gestionar Inventario\n");
         printf("2. Registrar Movimientos\n");
@@ -43,30 +41,26 @@ int main(void){
 
         switch(opcion){
             case '1': gestionarInventario(); break;
-            case '2': registrarMovimientos(); break;
+            case '2': registrarMovimientos(idUsuario); break;  //PASAR idUsuario
             case '3': generarReportes(); break;
             case '4': administrarProveedores(); break;
             case '5': configurarSistema(); break;
-            case '6': cerrarSesion(idUsuarioGlobal); sesionIniciada = 0; break;
+            case '6': cerrarSesion(idUsuario); idUsuario = -1; break;  //PASAR idUsuario
             default: printf("\nOpcion no valida.\n");
-        }
-    
-
-    sqlite3_close(db);
-    return 0;
-            } else {
-                continue; // vuelve a pedir login
-            }
         }
     }
 
+    sqlite3_close(db);
+    return 0;
 }
 
-void iniciarSesion(){
+
+int iniciarSesion(){
     char usuario[50];
     char contrasena[50];
     char sql[256];
     sqlite3_stmt *stmt;
+    int idUsuario = -1;
 
     printf("\n--- Inicio de Sesion ---\n");
     printf("Usuario: ");
@@ -78,20 +72,20 @@ void iniciarSesion(){
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
-            idUsuarioGlobal = sqlite3_column_int(stmt, 0); //ID del usuario guardado
+            idUsuario = sqlite3_column_int(stmt, 0);
             const unsigned char *rol = sqlite3_column_text(stmt, 1);
             strcpy(rolUsuario, (const char *)rol);
-            printf("Bienvenido, %s! Rol: %s | ID: %d\n", usuario, rolUsuario, idUsuarioGlobal);
+            printf("Bienvenido, %s! Rol: %s | ID: %d\n", usuario, rolUsuario, idUsuario);
         } else {
             printf("Usuario o contrasena incorrectos.\n");
-            idUsuarioGlobal = -1; //Asegura que el id queda inválido
         }
         sqlite3_finalize(stmt);
     } else {
         printf("Error al verificar usuario.\n");
-        idUsuarioGlobal = -1;
     }
+    return idUsuario;
 }
+
     void gestionarInventario(){
         printf("\n--- Gestion de Inventario ---\n");
         printf("1. Ver productos\n");
@@ -174,7 +168,7 @@ void iniciarSesion(){
         }
     }
     
-    void registrarMovimientos(){
+    void registrarMovimientos(int idUsuario){
         printf("\n--- Registro de Movimientos ---\n");
         int tipo, producto_id, cantidad;
         char motivo[100], sql[512];
@@ -415,10 +409,10 @@ void iniciarSesion(){
         // Guardar la hora de ultima conexion
         sprintf(sql, "UPDATE Usuarios SET ultima_conexion = '%s' WHERE id = %d;", fecha, idUsuario);
         if (sqlite3_exec(db, sql, 0, 0, 0) != SQLITE_OK) {
-            printf("⚠️  No se pudo actualizar la ultima conexion.\n");
+            printf("No se pudo actualizar la ultima conexion.\n");
         }
     
-        printf("\n✅ Sesion cerrada correctamente. Hasta pronto.\n");
+        printf("\n Sesion cerrada correctamente. Hasta pronto.\n");
     }
     
     
