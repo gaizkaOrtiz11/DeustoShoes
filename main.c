@@ -12,6 +12,7 @@ void generarReportes();
 void administrarProveedores();
 void configurarSistema();
 void cerrarSesion(int idUsuario);
+void buscarProducto();
 
 sqlite3 *db;
 char rolUsuario[20];
@@ -91,7 +92,10 @@ int iniciarSesion(){
         printf("1. Ver productos\n");
         printf("2. Anadir producto\n");
         printf("3. Modificar producto\n");
-        printf("4. Eliminar producto\n");
+        printf("4. Eliminar producto\n"); 
+        printf("5. Buscar Producto\n");
+        printf("6. Volver al menu principal\n");
+       
         printf("Seleccione una opcion:\n ");
     
         char opcion;
@@ -163,33 +167,74 @@ int iniciarSesion(){
                 }
                 break;
             }
+            case '5': {
+                buscarProducto();
+                break;
+                printf("Volviendo al menu primcipal....");
+                break;
+            }
+            case '6':{
+                printf("Volviendo al menu primcipal....");
+                break;
+            }
             default:
                 printf("Opcion invalida.\n");
         }
     }
     
     void registrarMovimientos(int idUsuario){
-        printf("\n--- Registro de Movimientos ---\n");
-        int tipo, producto_id, cantidad;
-        char motivo[100], sql[512];
+        char opcion;
+            printf("\n--- Registro de Movimientos ---\n");
+            printf("1. Registrar entrada o salida\n");
+            printf("2. Volver al menu principal\n");
+            printf("Seleccione una opcion: ");
+            scanf(" %c", &opcion);
     
-        printf("Tipo de movimiento (1=Entrada, 2=Salida): ");
-        scanf("%d", &tipo);
-        printf("ID del producto: ");
-        scanf("%d", &producto_id);
-        printf("Cantidad: ");
-        scanf("%d", &cantidad);
-        
+            switch (opcion) {
+                case '1': {
+                    int tipo, producto_id, cantidad;
+                    char motivo[100], sql[512];
     
-        sprintf(sql, "INSERT INTO Movimientos (tipo, producto_id, cantidad, fecha, usuario_id) VALUES (%d, %d, %d, datetime('now'), 1, '%s');",
-                tipo, producto_id, cantidad);
+                    printf("Tipo de movimiento (1=Entrada, 2=Salida): ");
+                    scanf("%d", &tipo);
+                    printf("ID del producto: ");
+                    scanf("%d", &producto_id);
+                    printf("Cantidad: ");
+                    scanf("%d", &cantidad);
+                    printf("Motivo: ");
+                    getchar();
+                    fgets(motivo, sizeof(motivo), stdin);
+                    motivo[strcspn(motivo, "\n")] = 0;
     
-        if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
-            printf("Movimiento registrado con exito.\n");
-        } else {
-            printf("Error al registrar movimiento.\n");
+                    // Actualizar cantidad en inventario
+                    if (tipo == 1) {
+                        sprintf(sql, "UPDATE Zapatilla SET cantidad = cantidad + %d WHERE id = %d;", cantidad, producto_id);
+                    } else {
+                        sprintf(sql, "UPDATE Zapatilla SET cantidad = cantidad - %d WHERE id = %d;", cantidad, producto_id);
+                    }
+                    if (sqlite3_exec(db, sql, 0, 0, 0) != SQLITE_OK) {
+                        printf("Error al actualizar el inventario.\n");
+                        break;
+                    }
+    
+                    // Insertar movimiento
+                    sprintf(sql, "INSERT INTO Movimientos (tipo, producto_id, cantidad, fecha, usuario_id, motivo) VALUES (%d, %d, %d, datetime('now'), %d, '%s');",
+                            tipo, producto_id, cantidad, idUsuario, motivo);
+    
+                    if (sqlite3_exec(db, sql, 0, 0, 0) == SQLITE_OK) {
+                        printf("Movimiento registrado con exito.\n");
+                    } else {
+                        printf("Error al registrar movimiento.\n");
+                    }
+                    break;
+                }
+                case '2':
+                    printf("Volviendo al menu principal...\n");
+                    break;
+                default:
+                    printf("Opcion invalida.\n");
+            }
         }
-    }
     
     void generarReportes(){
         printf("\n--- Generacion de Reportes ---\n");
@@ -244,6 +289,7 @@ int iniciarSesion(){
         printf("2. Anadir proveedor\n");
         printf("3. Modificar proveedor\n");
         printf("4. Eliminar proveedor\n");
+        printf("5. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
     
         char opcion;
@@ -315,6 +361,10 @@ int iniciarSesion(){
                 }
                 break;
             }
+            case '5':{
+                printf("Volviendo al menu principal...\n");
+                break;
+            }
             default:
                 printf("Opcion invalida.\n");
         }
@@ -326,6 +376,8 @@ int iniciarSesion(){
         printf("1. Ver usuarios\n");
         printf("2. Cambiar contrasena de usuario\n");
         printf("3. Cambiar rol de usuario\n");
+        printf("4. Volver al menu principal\n");
+        
         printf("Seleccione una opcion: ");
     
         char opcion;
@@ -388,6 +440,10 @@ int iniciarSesion(){
                 }
                 break;
             }
+            case '4':{
+                printf("Volviendo al menu principal...\n");
+                break;
+            }
     
             default:
                 printf("Opcion invalida.\n");
@@ -415,4 +471,43 @@ int iniciarSesion(){
         printf("\n Sesion cerrada correctamente. Hasta pronto.\n");
     }
     
+    void buscarProducto(){
+        char criterio[50], valor[50], sql[256];
+        sqlite3_stmt *stmt;
+    
+        printf("\n--- Busqueda de Producto ---\n");
+        printf("Buscar por (nombre/marca/modelo): ");
+        scanf("%s", criterio);
+        printf("Valor a buscar: ");
+        getchar();
+        fgets(valor, sizeof(valor), stdin);
+        valor[strcspn(valor, "\n")] = 0;
+    
+        if (strcmp(criterio, "nombre") == 0 || strcmp(criterio, "marca") == 0 || strcmp(criterio, "modelo") == 0) {
+            sprintf(sql, "SELECT id, nombre, marca, modelo, cantidad, precio FROM Zapatilla WHERE %s LIKE '%%%s%%';", criterio, valor);
+            if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+                int found = 0;
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    found = 1;
+                    printf("ID: %d | Nombre: %s | Marca: %s | Modelo: %s | Cantidad: %d | Precio: %.2f\n",
+                        sqlite3_column_int(stmt, 0),
+                        sqlite3_column_text(stmt, 1),
+                        sqlite3_column_text(stmt, 2),
+                        sqlite3_column_text(stmt, 3),
+                        sqlite3_column_int(stmt, 4),
+                        sqlite3_column_double(stmt, 5));
+                }
+                if (!found) {
+                    printf("\nNo se encontraron productos que coincidan con '%s'.\n", valor);
+                }
+                sqlite3_finalize(stmt);
+            } else {
+                printf("Error al ejecutar la consulta de busqueda.\n");
+            }
+        } else {
+            printf("Criterio invalido. Solo se permite nombre, marca o modelo.\n");
+        }
+    }
+    
+
     
