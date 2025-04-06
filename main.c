@@ -90,8 +90,8 @@ int iniciarSesion(){
     void gestionarInventario(){
         printf("\n--- Gestion de Inventario ---\n");
         printf("1. Ver productos\n");
-        printf("2. Anadir producto\n");
-        printf("3. Modificar producto\n");
+        printf("2. Anadir nuevo producto\n");
+        printf("3. Modificar Cantidad de producto\n");
         printf("4. Eliminar producto\n"); 
         printf("5. Buscar Producto\n");
         printf("6. Volver al menu principal\n");
