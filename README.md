@@ -1,1 +1,1 @@
-Este proyecto es una simulación de un almacén de zapatillas, creado usando C/C++ como forma de aprentizaje de estos 2 lenguajes.
+Simulación de un almacén de zapatillas en tiempo real, usando una base de datos y procesando con sockets la demanda con parte cliente servidor. Creado usando C/C++ como forma de aprentizaje de estos 2 lenguajes.
